@@ -4,10 +4,11 @@ set -u
 set -e
 
 main() {
-	local whereami=$(dirname "${BASH_SOURCE[0]}")
+	local whereami="$(dirname "${BASH_SOURCE[0]}")"
 
-	"${whereami}/build-command-t.sh"
-	"${whereami}/build-ycm.sh"
+	pushd "${whereami}"
+	make
+	popd
 }
 
 main
