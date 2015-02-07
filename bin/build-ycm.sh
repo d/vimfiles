@@ -2,12 +2,17 @@
 
 set -u -e
 
+abs_dirname() {
+	local filename="$1"
+	cd "$(dirname "${filename}")"
+	pwd
+}
+
 _main() {
-	local whereami=$(dirname "${BASH_SOURCE[0]}")
+	local whereami=$(abs_dirname "${BASH_SOURCE[0]}")
 	local vimdir=$(dirname "${whereami}")
 
 	pushd ${vimdir}
-	git submodule update --init --recursive
 	bundle/YouCompleteMe/install.sh --clang-completer --system-libclang
 	find bundle/YouCompleteMe -name 'sh.pyc' -delete
 	popd ${vimdir}
