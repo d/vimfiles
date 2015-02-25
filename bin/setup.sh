@@ -3,10 +3,17 @@
 set -u
 set -e
 
-main() {
-	local whereami="$(dirname "${BASH_SOURCE[0]}")"
+abs_dirname() {
+	local filename="$1"
+	cd "$(dirname "${filename}")"
+	pwd
+}
 
-	pushd "${whereami}"
+main() {
+	local readonly whereami=$(abs_dirname "${BASH_SOURCE[0]}")
+	local vimdir="$(dirname "${whereami}")"
+
+	pushd "${vimdir}"
 	git submodule update --init --recursive
 	make
 	popd
