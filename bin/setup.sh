@@ -15,7 +15,7 @@ main() {
 
 	pushd "${vimdir}"
 	git submodule update --init --recursive
-	make
+	make -C "${whereami}"
 	popd
 }
 
