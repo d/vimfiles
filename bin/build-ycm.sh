@@ -15,7 +15,7 @@ _main() {
 	pushd ${vimdir}
 	bundle/YouCompleteMe/install.sh --clang-completer
 	find bundle/YouCompleteMe -name 'sh.pyc' -delete
-	popd ${vimdir}
+	popd
 }
 
 _main
