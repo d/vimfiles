@@ -1,4 +1,4 @@
-# Copyright 2010-2014 Greg Hurrell. All rights reserved.
+# Copyright 2010-2015 Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'ostruct'
@@ -11,6 +11,8 @@ module CommandT
     MH_START          = '<commandt>'
     MH_END            = '</commandt>'
     @@buffer          = nil
+
+    Highlight = Struct.new(:highlight, :bang)
 
     def initialize(options = {})
       @highlight_color = options[:highlight_color] || 'PmenuSel'
@@ -50,6 +52,7 @@ module CommandT
         set 'bufhidden', 'unload' # unload buf when no longer displayed
         set 'buftype', 'nofile'   # buffer is not related to any file
         set 'modifiable', false   # prevent manual edits
+        set 'readonly', false     # avoid W10 "Changing a readonly file"
         set 'swapfile', false     # don't create a swapfile
         set 'wrap', false         # don't soft-wrap
         set 'number', false       # don't show line numbers
@@ -101,13 +104,19 @@ module CommandT
       # perform cleanup using an autocmd to ensure we don't get caught out
       # by some unexpected means of dismissing or leaving the Command-T window
       # (eg. <C-W q>, <C-W k> etc)
-      ::VIM::command 'autocmd! * <buffer>'
+      ::VIM::command 'augroup CommandTMatchWindow'
+      ::VIM::command 'autocmd!'
       ::VIM::command 'autocmd BufLeave <buffer> silent! ruby $command_t.leave'
       ::VIM::command 'autocmd BufUnload <buffer> silent! ruby $command_t.unload'
+      ::VIM::command 'augroup END'
 
       @has_focus  = false
       @abbrev     = ''
       @window     = $curwin
+    end
+
+    def buffer_number
+      @@buffer && @@buffer.number
     end
 
     def close
@@ -400,21 +409,28 @@ module CommandT
     end
 
     def get_cursor_highlight
-      # there are 3 possible formats to check for, each needing to be
+      # there are 4 possible formats to check for, each needing to be
       # transformed in a certain way in order to reapply the highlight:
       #   Cursor xxx guifg=bg guibg=fg      -> :hi! Cursor guifg=bg guibg=fg
       #   Cursor xxx links to SomethingElse -> :hi! link Cursor SomethingElse
+      #   Cursor xxx [definition]
+      #              links to VisualNOS     -> both of the above
       #   Cursor xxx cleared                -> :hi! clear Cursor
       highlight = VIM::capture 'silent! 0verbose highlight Cursor'
 
-      if highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
-        "link Cursor #{$~[1]}".gsub(/\s+/, ' ')
+      if highlight =~ /^Cursor\s+xxx\s+(.+)\blinks to (\w+)/m
+        [
+          Highlight.new("Cursor #{$~[1]}"),
+          Highlight.new("link Cursor #{$~[2]}", '!')
+        ]
+      elsif highlight =~ /^Cursor\s+xxx\s+links to (\w+)/m
+        [Highlight.new("link Cursor #{$~[1]}")]
       elsif highlight =~ /^Cursor\s+xxx\s+cleared/m
-        'clear Cursor'
+        [Highlight.new('clear Cursor')]
       elsif highlight =~ /Cursor\s+xxx\s+(.+)/m
-        "Cursor #{$~[1]}".gsub(/\s+/, ' ')
+        [Highlight.new("Cursor #{$~[1]}")]
       else # likely cause E411 Cursor highlight group not found
-        nil
+        []
       end
     end
 
@@ -426,7 +442,10 @@ module CommandT
 
     def show_cursor
       if @cursor_highlight
-        ::VIM::command "highlight #{@cursor_highlight}"
+        @cursor_highlight.each do |highlight|
+          config = highlight.highlight.gsub(/\s+/, ' ')
+          ::VIM::command "highlight#{highlight.bang} #{config}"
+        end
       end
     end
 
