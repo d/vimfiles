@@ -2,7 +2,7 @@ all: command_t ycm
 
 command_t: ../bundle/command-t/ruby/command-t/ext.bundle
 
-../bundle/command-t/ruby/command-t/ext.bundle: ../bundle/command-t/ruby/command-t/ext.c
+../bundle/command-t/ruby/command-t/ext.bundle: ../bundle/command-t/ruby/command-t/ext.c ../bundle/command-t/ruby/command-t/extconf.rb
 	./build-command-t.sh
 
 ycm: ../bundle/YouCompleteMe/third_party/ycmd/ycm_core.so ../bundle/YouCompleteMe/third_party/ycmd/ycm_client_support.so
