@@ -2,21 +2,22 @@
 
 CONTENTS                                        *command-t-contents*
 
- 1. Introduction            |command-t-intro|
- 2. Requirements            |command-t-requirements|
- 3. Installation            |command-t-installation|
- 4. Trouble-shooting        |command-t-trouble-shooting|
- 5. Usage                   |command-t-usage|
- 6. Commands                |command-t-commands|
- 7. Mappings                |command-t-mappings|
- 8. Options                 |command-t-options|
- 9. FAQ                     |command-t-faq|
-10. Tips                    |command-t-tips|
-11. Authors                 |command-t-authors|
-12. Development             |command-t-development|
-13. Website                 |command-t-website|
-14. License                 |command-t-license|
-15. History                 |command-t-history|
+ 1. Introduction                    |command-t-intro|
+ 2. Requirements                    |command-t-requirements|
+ 3. Installation                    |command-t-installation|
+ 4. Trouble-shooting                |command-t-trouble-shooting|
+ 5. Usage                           |command-t-usage|
+ 6. Commands                        |command-t-commands|
+ 7. Mappings                        |command-t-mappings|
+ 8. Options                         |command-t-options|
+ 9. Integration and Extensibility   |command-t-integration-and-extensibility|
+10. FAQ                             |command-t-faq|
+11. Tips                            |command-t-tips|
+12. Authors                         |command-t-authors|
+13. Development                     |command-t-development|
+14. Website                         |command-t-website|
+15. License                         |command-t-license|
+16. History                         |command-t-history|
 
 
 INTRODUCTION                                    *command-t-intro*
@@ -792,6 +793,14 @@ Following is a list of all available options:
       Ignore case when searching. Defaults to on, which means that searching
       is case-insensitive by default. See also |g:CommandTSmartCase|.
 
+                                                *g:CommandTRecursiveMatch*
+  |g:CommandTRecursiveMatch|                      boolean (default: 1)
+
+      Use this to downgrade Command-T's match-scoring algorithm to its older,
+      non-recursive form. Doing so may improve the responsiveness of the match
+      listing, but at the cost of slightly less precision in the ranking of
+      results.
+
                                                 *g:CommandTSmartCase*
   |g:CommandTSmartCase|                           boolean (default: none)
 
@@ -864,6 +873,13 @@ Following is a list of all available options:
       to force Command-T to use a specific encoding, such as "UTF-8", if your
       environment ends up defaulting to an undesired encoding, such as
       "ASCII-8BIT".
+
+                                              *g:CommandTIgnoreSpaces*
+  |g:CommandTIgnoreSpaces|                      boolean (default: 0)
+
+      When typing a search term into Command-T, use this option to have it
+      ignore spaces. Without this option set, it will search for literal
+      spaces inside file names.
 
 As well as the basic options listed above, there are a number of settings that
 can be used to override the default key mappings used by Command-T. For
@@ -990,6 +1006,53 @@ settings can be used to control behavior:
       - The "watchman" scanner is intended for use with massive hierarchies
         where speed is of the utmost import, so it doesn't consult
         'wildignore' at all.
+
+
+INTEGRATION AND EXTENSIBILITY         *command-t-integration-and-extensibility*
+
+For the purposes of integrating with other plug-ins, or otherwise extending
+Command-T's functionality, a number of hooks and features are provided. Note
+that making use of any of these extension points is considered to be advanced
+configuration, and the more invasive the modifications, the greater the risk
+that they will interact poorly with future versions of Command-T. Proceed with
+caution.
+
+                                                *command-t-filetype*
+command-t filetype ~
+
+Command-T displays its match listing using a special Vim buffer with a
+filetype of  `command-t`. This can be used in |ftplugins| or elsewhere to set up
+an |autocommand| or apply custom configuration.
+
+For example of an |ftplugin| that sets a custom 'statusline' for the
+Command-T match listing buffer, see: https://wt.pe/f
+
+                                                *command-t-load*
+                                                *commandt#Load*
+Eager loading with commandt#CommandTLoad ~
+
+In order to minimize Vim startup time, most of Command-T's functionality is
+only loaded on first use, via Vim's |autoload| mechanism.
+
+If you should wish to monkey patch some Command-T functionality, the
+`commandt#Load()` function (also exposed via the |:CommandTLoad| command) is
+provided as a means of eager-loading Command-T's code, so that you can go
+ahead and patch it.
+
+                                                *commandt#ActiveFinder*
+                                                *commandt#CheckBuffer*
+                                                *commandt#Path*
+Statusline hooks ~
+
+A number of methods are provided that may be useful for creating a
+context-sensitive 'statusline'.
+
+- `commandt#ActiveFinder()`: Returns the class name of the currently
+  active finder.
+- `commandt#Path()`: Returns the path that Command-T is currently
+  searching.
+- `commandt#CheckBuffer()`: Takes a buffer number and returns true if
+  it is the Command-T match listing buffer.
 
 
 FAQ                                             *command-t-faq*
@@ -1119,17 +1182,25 @@ anchored at the root level of your repository in any case.
 Command-T will internally cache up to 10 different directories, so even if you
 |cd| repeatedly, it should only need to scan each directory once.
 
+It's advisable to keep a long-running Vim instance in place and let it cache
+the directory listings rather than repeatedly closing and re-opening Vim in
+order to edit every file. On those occasions when you do need to flush the
+cache (ie. with |CommandTFlush| or <C-f> in the match listing window), use of
+the Watchman scanner should make the delay barely noticeable.
+
     let g:CommandTSmartCase = 1
 
 Makes Command-T perform case-sensitive matching whenever the search pattern
 includes an uppercase letter. This allows you to narrow the search results
 listing with fewer keystrokes. See also |g:CommandTIgnoreCase|.
 
-It's advisable to keep a long-running Vim instance in place and let it cache
-the directory listings rather than repeatedly closing and re-opening Vim in
-order to edit every file. On those occasions when you do need to flush the
-cache (ie. with |CommandTFlush| or <C-f> in the match listing window), use of
-the Watchman scanner should make the delay barely noticeable.
+    let g:CommandTRecursiveMatch = 0
+
+This one is a little more subjective. You may want to turn off Command-T's
+recursive match-scoring algorithm to save some cycles. This finds matches more
+quickly at the possible cost of ranking them slightly less precisely. Whether
+applying this setting helps or hurts you in a very large repo is probably
+repo-dependent.
 
 As noted in the introduction, Command-T works best when you adopt a
 "path-centric" mentality. This is especially true on very large hierarchies.
@@ -1154,6 +1225,7 @@ kind of ongoing calibration will come quite naturally.
 Finally, it is important to be on a relatively recent version of Command-T to
 fully benefit from the available performance enhancements:
 
+- version 2.0a (not yet released) added the |g:CommandTRecursiveMatch| option
 - version 1.10 (July 2014) added the |g:CommandTIgnoreCase| and
   |g:CommandTSmartCase| options
 - version 1.9 (May 2014) tweaked memoization algorithm for a 10% speed boost
@@ -1174,21 +1246,22 @@ Command-T is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include (in alphabetical
 order):
 
-  Abhinav Gupta                   Noon Silk
-  Aleksandrs Ļedovskis            Ole Petter Bang
-  Andy Waite                      Patrick Hayes
-  Anthony Panozzo                 Paul Jolly
-  Artem Nezvigin                  Pavel Sergeev
-  Ben Boeckel                     Rainux Luo
-  Ben Osheroff                    Richard Feldman
-  Daniel Hahler                   Roland Puntaier
-  David Szotten                   Ross Lagerwall
-  Emily Strickland                Scott Bronson
-  Felix Tjandrawibawa             Seth Fowler
-  Gary Bernhardt                  Sherzod Gapirov
-  Ivan Ukhov                      Shlomi Fish
-  Jacek Wysocki                   Steven Moazami
-  Jeff Kreeftmeijer               Sung Pae
+  Abhinav Gupta                   Nikolai Aleksandrovich Pavlov
+  Aleksandrs Ļedovskis            Noon Silk
+  Andy Waite                      Ole Petter Bang
+  Anthony Panozzo                 Patrick Hayes
+  Artem Nezvigin                  Paul Jolly
+  Ben Boeckel                     Pavel Sergeev
+  Ben Osheroff                    Rainux Luo
+  Daniel Hahler                   Richard Feldman
+  David Szotten                   Roland Puntaier
+  Emily Strickland                Ross Lagerwall
+  Felix Tjandrawibawa             Scott Bronson
+  Gary Bernhardt                  Seth Fowler
+  Ivan Ukhov                      Sherzod Gapirov
+  Jacek Wysocki                   Shlomi Fish
+  Jeff Kreeftmeijer               Steven Moazami
+  KJ Tsanaktsidis                 Sung Pae
   Kevin Webster                   Thomas Pelletier
   Lucas de Vries                  Ton van den Heuvel
   Marcus Brito                    Victor Hugo Borja
@@ -1198,7 +1271,6 @@ order):
   Nadav Samet                     Yan Pritzker
   Nate Kane                       Yiding Jia
   Nicholas Alpi                   Zak Johnson
-  Nikolai Aleksandrovich Pavlov
 
 As this was the first Vim plug-in I had ever written I was heavily influenced
 by the design of the LustyExplorer plug-in by Stephen Bach, which I understand
@@ -1291,6 +1363,51 @@ POSSIBILITY OF SUCH DAMAGE.
 
 HISTORY                                         *command-t-history*
 
+2.0a (not yet released)
+
+- add |:CommandTIgnoreSpaces| option (patch from KJ Tsanaktsidis)
+- make Command-T resilient to people deleting its hidden, unlisted buffer
+- the match listing buffer now has filetype "command-t", which may be useful
+  for detectability/extensibility
+- Command-T now sets the name of the match listing buffer according to how it
+  was invoked (ie. for the file finder, the name is "Command-T [Files]", for
+  the buffer finder, the name is "Command-T [Buffers]", and so on);
+  previously the name was a fixed as "GoToFile" regardless of the active
+  finder type
+- Many internal function names have changed, so if you or your plug-ins are
+  calling those internals they will need to be updated:
+  - `commandt#CommandTFlush()` is now `commandt#Flush()`
+  - `commandt#CommandTLoad()` is now `commandt#Load()`
+  - `commandt#CommandTShowBufferFinder()` is now `commandt#BufferFinder()`
+  - `commandt#CommandTShowFileFinder()` is now `commandt#FileFinder()`
+  - `commandt#CommandTShowJumpFinder()` is now `commandt#JumpFinder()`
+  - `commandt#CommandTShowMRUFinder()` is now `commandt#MRUFinder()`
+  - `commandt#CommandTShowTagFinder()` is now `commandt#TagFinder()`
+- A number of functions have been turned into "private" autoloaded functions,
+  to make it clear that they are intended only for internal use:
+  - `CommandTAcceptSelection()` is now `commandt#private#AcceptSelection()`
+  - `CommandTAcceptSelectionSplit()` is now `commandt#private#AcceptSelectionSplit()`
+  - `CommandTAcceptSelectionTab()` is now `commandt#private#AcceptSelectionTab()`
+  - `CommandTAcceptSelectionVSplit()` is now `commandt#private#AcceptSelectionVSplit()`
+  - `CommandTBackspace()` is now `commandt#private#Backspace()`
+  - `CommandTCancel()` is now `commandt#private#Cancel()`
+  - `CommandTClear()` is now `commandt#private#Clear()`
+  - `CommandTClearPrevWord()` is now `commandt#private#ClearPrevWord()`
+  - `CommandTCursorEnd()` is now `commandt#private#CursorEnd()`
+  - `CommandTCursorLeft()` is now `commandt#private#CursorLeft()`
+  - `CommandTCursorRight()` is now `commandt#private#CursorRight()`
+  - `CommandTCursorStart()` is now `commandt#private#CursorStart()`
+  - `CommandTDelete()` is now `commandt#private#Delete()`
+  - `CommandTHandleKey()` is now `commandt#private#HandleKey()`
+  - `CommandTListMatches()` is now `commandt#private#ListMatches()`
+  - `CommandTQuickfix()` is now `commandt#private#Quickfix()`
+  - `CommandTRefresh()` is now `commandt#private#Refresh()`
+  - `CommandTSelectNext()` is now `commandt#private#SelectNext()`
+  - `CommandTSelectPrev()` is now `commandt#private#SelectPrev()`
+  - `CommandTToggleFocus()` is now `commandt#private#ToggleFocus()`
+- add |g:CommandTRecursiveMatch| option
+- stop distribution as a vimball in favor of a zip archive
+
 1.13 (29 April 2015)
 
 - avoid "W10: Warning: Changing a readonly file" when starting Vim in
@@ -1372,7 +1489,7 @@ HISTORY                                         *command-t-history*
 
 1.9.1 (30 May 2014)
 
-- include the file in the release vimball archive that was missing from the
+- include the file in the release archive that was missing from the
   1.9 release
 
 1.9 (25 May 2014)
@@ -1591,4 +1708,4 @@ HISTORY                                         *command-t-history*
 - initial public release
 
 ------------------------------------------------------------------------------
-vim:tw=78:ft=help:
+vim:ts=8:tw=78:ft=help:

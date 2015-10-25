@@ -6,69 +6,69 @@ if exists('g:command_t_autoloaded') || &cp
 endif
 let g:command_t_autoloaded = 1
 
-function! s:CommandTRubyWarning() abort
+function! s:RubyWarning() abort
   echohl WarningMsg
   echo 'command-t.vim requires Vim to be compiled with Ruby support'
   echo 'For more information type:  :help command-t'
   echohl none
 endfunction
 
-function! commandt#CommandTShowBufferFinder() abort
+function! commandt#BufferFinder() abort
   if has('ruby')
     ruby $command_t.show_buffer_finder
   else
-    call s:CommandTRubyWarning()
+    call s:RubyWarning()
   endif
 endfunction
 
-function! commandt#CommandTShowFileFinder(arg) abort
+function! commandt#FileFinder(arg) abort
   if has('ruby')
     ruby $command_t.show_file_finder
   else
-    call s:CommandTRubyWarning()
+    call s:RubyWarning()
   endif
 endfunction
 
-function! commandt#CommandTShowJumpFinder() abort
+function! commandt#JumpFinder() abort
   if has('ruby')
     ruby $command_t.show_jump_finder
   else
-    call s:CommandTRubyWarning()
+    call s:RubyWarning()
   endif
 endfunction
 
-function! commandt#CommandTShowMRUFinder() abort
+function! commandt#MRUFinder() abort
   if has('ruby')
     ruby $command_t.show_mru_finder
   else
-    call s:CommandTRubyWarning()
+    call s:RubyWarning()
   endif
 endfunction
 
-function! commandt#CommandTShowTagFinder() abort
+function! commandt#TagFinder() abort
   if has('ruby')
     ruby $command_t.show_tag_finder
   else
-    call s:CommandTRubyWarning()
+    call s:RubyWarning()
   endif
 endfunction
 
-function! commandt#CommandTFlush() abort
+function! commandt#Flush() abort
   if has('ruby')
     ruby $command_t.flush
   else
-    call s:CommandTRubyWarning()
+    call s:RubyWarning()
   endif
 endfunction
 
-function! commandt#CommandTLoad() abort
+function! commandt#Load() abort
   if !has('ruby')
-    call s:CommandTRubyWarning()
+    call s:RubyWarning()
   endif
 endfunction
 
 " For possible use in status lines.
-function! commandt#CommandTActiveFinder() abort
+function! commandt#ActiveFinder() abort
   if has('ruby')
     ruby ::VIM::command "return '#{$command_t.active_finder}'"
   else
@@ -77,7 +77,7 @@ function! commandt#CommandTActiveFinder() abort
 endfunction
 
 " For possible use in status lines.
-function! commandt#CommandTPath() abort
+function! commandt#Path() abort
   if has('ruby')
     ruby ::VIM::command "return '#{($command_t.path || '').gsub(/'/, "''")}'"
   else
@@ -86,7 +86,7 @@ function! commandt#CommandTPath() abort
 endfunction
 
 " For possible use in status lines.
-function! commandt#CommandTCheckBuffer(buffer_number) abort
+function! commandt#CheckBuffer(buffer_number) abort
   if has('ruby')
     execute 'ruby $command_t.return_is_own_buffer' a:buffer_number
   else
@@ -97,86 +97,6 @@ endfunction
 if !has('ruby')
   finish
 endif
-
-function! CommandTListMatches() abort
-  ruby $command_t.list_matches
-endfunction
-
-function! CommandTHandleKey(arg) abort
-  ruby $command_t.handle_key
-endfunction
-
-function! CommandTBackspace() abort
-  ruby $command_t.backspace
-endfunction
-
-function! CommandTDelete() abort
-  ruby $command_t.delete
-endfunction
-
-function! CommandTAcceptSelection() abort
-  ruby $command_t.accept_selection
-endfunction
-
-function! CommandTAcceptSelectionTab() abort
-  ruby $command_t.accept_selection :command => $command_t.tab_command
-endfunction
-
-function! CommandTAcceptSelectionSplit() abort
-  ruby $command_t.accept_selection :command => $command_t.split_command
-endfunction
-
-function! CommandTAcceptSelectionVSplit() abort
-  ruby $command_t.accept_selection :command => $command_t.vsplit_command
-endfunction
-
-function! CommandTQuickfix() abort
-  ruby $command_t.quickfix
-endfunction
-
-function! CommandTRefresh() abort
-  ruby $command_t.refresh
-endfunction
-
-function! CommandTToggleFocus() abort
-  ruby $command_t.toggle_focus
-endfunction
-
-function! CommandTCancel() abort
-  ruby $command_t.cancel
-endfunction
-
-function! CommandTSelectNext() abort
-  ruby $command_t.select_next
-endfunction
-
-function! CommandTSelectPrev() abort
-  ruby $command_t.select_prev
-endfunction
-
-function! CommandTClear() abort
-  ruby $command_t.clear
-endfunction
-
-function! CommandTClearPrevWord() abort
-  ruby $command_t.clear_prev_word
-endfunction
-
-function! CommandTCursorLeft() abort
-  ruby $command_t.cursor_left
-endfunction
-
-function! CommandTCursorRight() abort
-  ruby $command_t.cursor_right
-endfunction
-
-function! CommandTCursorEnd() abort
-  ruby $command_t.cursor_end
-endfunction
-
-function! CommandTCursorStart() abort
-  ruby $command_t.cursor_start
-endfunction
 
 " note that we only start tracking buffers from first (autoloaded) use of Command-T
 augroup CommandTMRUBuffer
