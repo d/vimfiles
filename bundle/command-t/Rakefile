@@ -38,43 +38,6 @@ def err(str)
   puts "#{red}error: #{str}#{clear}"
 end
 
-def prepare_release_notes
-  # extract base release notes from README.txt HISTORY section
-  File.open('.release-notes.txt', 'w') do |out|
-    lines = File.readlines('README.txt').each { |line| line.chomp! }
-    while line = lines.shift do
-      next unless line =~ /^HISTORY +\*command-t-history\*$/
-      break unless lines.shift == '' &&
-                  (line = lines.shift) && line =~ /^\d\.\d/ &&
-                  lines.shift == ''
-      while line = lines.shift && line != ''
-        out.puts line
-      end
-      break
-    end
-    out.puts ''
-    out.puts '# Please edit the release notes to taste.'
-    out.puts '# Blank lines and lines beginning with a hash will be removed.'
-    out.puts '# To abort, exit your editor with a non-zero exit status (:cquit in Vim).'
-  end
-
-  unless system "$EDITOR .release-notes.txt"
-    err "editor exited with non-zero exit status; aborting"
-    exit 1
-  end
-
-  filtered = read_release_notes
-  File.open('.release-notes.txt', 'w') do |out|
-    out.print filtered
-  end
-end
-
-def read_release_notes
-  File.readlines('.release-notes.txt').reject do |line|
-    line =~ /^(#.*|\s*)$/ # filter comment lines and blank lines
-  end.join
-end
-
 task :default => :spec
 
 desc 'Print help on preparing a release'
@@ -100,11 +63,10 @@ task :spec do
   bail_on_failure
 end
 
-desc 'Create vimball archive'
-task :vimball => :check_tag do
-  system 'make'
+desc 'Create archive'
+task :archive => :check_tag do
+  system "git archive -o command-t-#{version}.zip HEAD -- ."
   bail_on_failure
-  FileUtils.cp 'command-t.vba', "command-t-#{version}.vba"
 end
 
 desc 'Clean compiled products'
@@ -113,11 +75,6 @@ task :clean do
     system 'make clean' if File.exists?('Makefile')
     system 'rm -f Makefile'
   end
-end
-
-desc 'Clobber all generated files'
-task :clobber => :clean do
-  system 'make clean'
 end
 
 desc 'Compile extension'
@@ -139,32 +96,65 @@ task :check_tag do
 end
 
 desc 'Run checks prior to release'
-task :prerelease => ['make', 'spec', :vimball, :check_tag]
+task :prerelease => ['make', 'spec', :archive, :check_tag]
+
+desc 'Prepare release notes from HISTORY'
+task :notes do
+  File.open('.release-notes.txt', 'w') do |out|
+    lines = File.readlines('doc/command-t.txt').each(&:chomp!)
+    while line = lines.shift do
+      next unless line =~ /^HISTORY +\*command-t-history\*$/
+      break unless lines.shift == '' &&
+                  (line = lines.shift) && line =~ /^\d\.\d/ &&
+                  lines.shift == ''
+      while (line = lines.shift) && line != ''
+        out.puts line
+      end
+      break
+    end
+    out.puts ''
+    out.puts '# Please edit the release notes to taste.'
+    out.puts '# Blank lines and lines beginning with a hash will be removed.'
+    out.puts '# To abort, exit your editor with a non-zero exit status (:cquit in Vim).'
+  end
+
+  unless system "$EDITOR .release-notes.txt"
+    err "editor exited with non-zero exit status; aborting"
+    exit 1
+  end
+
+  filtered = File.readlines('.release-notes.txt').reject do |line|
+    line =~ /^(#.*|\s*)$/ # filter comment lines and blank lines
+  end.join
+
+  File.open('.release-notes.txt', 'w') do |out|
+    out.print filtered
+  end
+end
 
 namespace :upload do
-  desc 'Upload current vimball to Amazon S3'
-  task :s3 => :vimball do
+  desc 'Upload current archive to Amazon S3'
+  task :s3 => :archive do
     sh 'aws --curl-options=--insecure put ' +
-      "s3.wincent.com/command-t/releases/command-t-#{version}.vba " +
-      "command-t-#{version}.vba"
+      "s3.wincent.com/command-t/releases/command-t-#{version}.zip " +
+      "command-t-#{version}.zip"
     sh 'aws --curl-options=--insecure put ' +
-      "s3.wincent.com/command-t/releases/command-t-#{version}.vba?acl " +
+      "s3.wincent.com/command-t/releases/command-t-#{version}.zip?acl " +
       '--public'
   end
 
-  desc 'Upload current vimball to www.vim.org'
-  task :vim => :vimball do
-    prepare_release_notes
+  desc 'Upload current archive to www.vim.org'
+  task :vim => [:archive, :notes] do
     sh "vendor/vimscriptuploader/vimscriptuploader.rb \
             --id 3025 \
-            --file command-t-#{version}.vba \
+            --file command-t-#{version}.zip \
             --message-file .release-notes.txt \
             --version #{version} \
             --config ~/.vim_org.yml \
             .vim_org.yml"
   end
 
-  desc 'Upload current vimball everywhere'
+  desc 'Upload current archive everywhere'
   task :all => [ :s3, :vim ]
 end
 

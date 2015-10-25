@@ -261,7 +261,9 @@ module CommandT
         @prompt.abbrev,
         :case_sensitive => case_sensitive?,
         :limit          => match_limit,
-        :threads        => CommandT::Util.processor_count
+        :threads        => CommandT::Util.processor_count,
+        :ignore_spaces  => VIM::get_bool('g:CommandTIgnoreSpaces'),
+        :recurse        => VIM::get_bool('g:CommandTRecursiveMatch', true),
       )
       @match_window.matches = @matches
 
@@ -303,7 +305,8 @@ module CommandT
         :match_window_reverse => VIM::get_bool('g:CommandTMatchWindowReverse'),
         :min_height           => min_height,
         :debounce_interval    => VIM::get_number('g:CommandTInputDebounce') || 50,
-        :prompt               => @prompt
+        :prompt               => @prompt,
+        :name                 => "Command-T [#{@active_finder.name}]"
       @focus            = @prompt
       @prompt.focus
       register_for_key_presses
@@ -402,7 +405,7 @@ module CommandT
 
     def map(key, function, param = nil)
       ::VIM::command "noremap <silent> <buffer> #{key} " \
-        ":call CommandT#{function}(#{param})<CR>"
+        ":call commandt#private##{function}(#{param})<CR>"
     end
 
     def term
@@ -457,7 +460,7 @@ module CommandT
     def set_up_autocmds
       ::VIM::command 'augroup CommandTController'
       ::VIM::command 'autocmd!'
-      ::VIM::command 'autocmd CursorHold <buffer> :call CommandTListMatches()'
+      ::VIM::command 'autocmd CursorHold <buffer> :call commandt#private#ListMatches()'
       ::VIM::command 'augroup END'
     end
 
