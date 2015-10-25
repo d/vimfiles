@@ -1,9 +1,15 @@
 all: command_t ycm
 
-command_t: ../bundle/command-t/ruby/command-t/ext.bundle
+.PHONY: command_t
 
-../bundle/command-t/ruby/command-t/ext.bundle: ../bundle/command-t/ruby/command-t/ext.c ../bundle/command-t/ruby/command-t/extconf.rb
+COMMANDT_DIR = ../bundle/command-t/ruby/command-t
+command_t: $(COMMANDT_DIR)/ext.bundle
+
+$(COMMANDT_DIR)/ext.bundle: $(COMMANDT_DIR)/Makefile
 	./build-command-t.sh
+
+$(COMMANDT_DIR)/Makefile: $(COMMANDT_DIR)/extconf.rb
+	cd $(COMMANDT_DIR) && env RBENV_VERSION=system ruby extconf.rb
 
 ycm: ../bundle/YouCompleteMe/third_party/ycmd/ycm_core.so ../bundle/YouCompleteMe/third_party/ycmd/ycm_client_support.so
 

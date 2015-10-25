@@ -11,9 +11,8 @@ _main() {
 	local vimdir=$(dirname $(cd "${whereami}"; pwd))
 
 	pushd "${vimdir}/bundle/command-t/ruby/command-t"
-	ruby extconf.rb
 	make
 	popd
 }
 
-_main
+_main "$@"
