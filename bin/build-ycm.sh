@@ -13,8 +13,7 @@ _main() {
 	local vimdir=$(dirname "${whereami}")
 
 	pushd ${vimdir}
-	bundle/YouCompleteMe/install.sh --clang-completer
-	find bundle/YouCompleteMe -name 'sh.pyc' -delete
+	bundle/YouCompleteMe/install.py --clang-completer
 	popd
 }
 
