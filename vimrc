@@ -7,4 +7,4 @@ let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 set nu hls
 
-colorscheme evening
+colorscheme ron
