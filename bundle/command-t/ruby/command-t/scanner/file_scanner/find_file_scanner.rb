@@ -1,4 +1,4 @@
-# Copyright 2014 Greg Hurrell. All rights reserved.
+# Copyright 2014-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'open3'
@@ -12,7 +12,7 @@ module CommandT
 
         def paths!
           # temporarily set field separator to NUL byte; this setting is
-          # respected by both `readlines` and `chomp!` below, and makes it easier
+          # respected by both `each_line` and `chomp!` below, and makes it easier
           # to parse the output of `find -print0`
           separator = $/
           $/ = "\x00"
@@ -34,9 +34,11 @@ module CommandT
             '-print0'                     # NUL-terminate results
           ].flatten.compact)) do |stdin, stdout, stderr|
             counter = 1
-            stdout.readlines.each do |line|
+            next_progress = progress_reporter.update(counter)
+            stdout.each_line do |line|
               next if path_excluded?(line.chomp!)
               paths << line[@prefix_len..-1]
+              next_progress = progress_reporter.update(counter) if counter == next_progress
               break if (counter += 1) > @max_files
             end
           end
@@ -44,7 +46,7 @@ module CommandT
         ensure
           $/ = separator
         end
-      end # class FindFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end

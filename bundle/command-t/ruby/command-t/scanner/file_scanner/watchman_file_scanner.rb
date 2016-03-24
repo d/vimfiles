@@ -1,4 +1,4 @@
-# Copyright 2014 Greg Hurrell. All rights reserved.
+# Copyright 2014-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'pathname'
@@ -61,7 +61,7 @@ module CommandT
           raise WatchmanError, 'get-sockname failed' if !$?.exitstatus.zero?
           raw_sockname
         end
-      end # class WatchmanFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end

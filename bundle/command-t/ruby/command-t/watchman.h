@@ -1,4 +1,4 @@
-// Copyright 2014 Greg Hurrell. All rights reserved.
+// Copyright 2014-present Greg Hurrell. All rights reserved.
 // Licensed under the terms of the BSD 2-clause license.
 
 #include <ruby.h>
@@ -8,7 +8,7 @@
  *
  * Methods for working with the Watchman binary protocol
  *
- * @see https://github.com/facebook/watchman/blob/master/BSER.markdown
+ * @see https://github.com/facebook/watchman/blob/master/website/_docs/BSER.markdown
  */
 
 /**

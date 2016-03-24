@@ -1,4 +1,4 @@
-# Copyright 2010-2015 Greg Hurrell. All rights reserved.
+# Copyright 2010-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'pathname'
@@ -60,7 +60,7 @@ basedir = Pathname.new(__FILE__).dirname
           defined?(RUBY_PATCHLEVEL) ? RUBY_PATCHLEVEL.inspect : nil.inspect
         }
         UNKNOWN = false
-      end # module Metadata
-    end # module CommandT
+      end
+    end
   END
 end

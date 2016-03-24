@@ -1,4 +1,4 @@
-# Copyright 2014 Greg Hurrell. All rights reserved.
+# Copyright 2014-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 module CommandT
@@ -39,5 +39,5 @@ module CommandT
         stack.include?(buffer)
       end
     end
-  end # module MRU
-end # module CommandT
+  end
+end
