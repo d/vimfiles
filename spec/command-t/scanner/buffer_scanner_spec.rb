@@ -1,4 +1,4 @@
-# Copyright 2010-2014 Greg Hurrell. All rights reserved.
+# Copyright 2010-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
@@ -23,7 +23,7 @@ describe CommandT::Scanner::BufferScanner do
 
   describe 'paths method' do
     it 'returns a list of regular files' do
-      @scanner.paths.should =~ @paths
+      expect(@scanner.paths).to match_array(@paths)
     end
   end
 end

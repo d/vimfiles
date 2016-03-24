@@ -1,4 +1,4 @@
-# Copyright 2010-2015 Greg Hurrell. All rights reserved.
+# Copyright 2010-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 require 'spec_helper'
@@ -78,6 +78,7 @@ describe CommandT::Controller do
     stub(prompt).focus
     stub(prompt).unfocus
     stub(prompt).clear!
+    stub(prompt).redraw
     stub(prompt).abbrev.returns(abbrev)
     stub(CommandT::Prompt).new.returns(prompt)
   end

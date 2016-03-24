@@ -1,4 +1,4 @@
-# Copyright 2014 Greg Hurrell. All rights reserved.
+# Copyright 2014-present Greg Hurrell. All rights reserved.
 # Licensed under the terms of the BSD 2-clause license.
 
 module CommandT
@@ -48,7 +48,7 @@ module CommandT
           raise LsFilesError if stderr && stderr.gets
         end
 
-      end # class GitFileScanner
-    end # class FileScanner
-  end # class Scanner
-end # module CommandT
+      end
+    end
+  end
+end
