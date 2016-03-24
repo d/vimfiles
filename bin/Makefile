@@ -11,10 +11,7 @@ $(COMMANDT_DIR)/ext.bundle: $(COMMANDT_DIR)/Makefile
 $(COMMANDT_DIR)/Makefile: $(COMMANDT_DIR)/extconf.rb
 	cd $(COMMANDT_DIR) && env RBENV_VERSION=system ruby extconf.rb
 
-ycm: ../bundle/YouCompleteMe/third_party/ycmd/ycm_core.so ../bundle/YouCompleteMe/third_party/ycmd/ycm_client_support.so
+ycm: ../bundle/YouCompleteMe/third_party/ycmd/ycm_core.so
 
-../bundle/YouCompleteMe/third_party/ycmd/ycm_core.so: ../bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/ycm_client_support.cpp
-	./build-ycm.sh
-
-../bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/ycm_core.cpp:../bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/ycm_core.cpp
+../bundle/YouCompleteMe/third_party/ycmd/ycm_core.so: ../bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/CMakeLists.txt
 	./build-ycm.sh
