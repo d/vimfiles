@@ -6,3 +6,4 @@ let g:UltiSnipsJumpForwardTrigger="<c-j>"
 let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
 
 set nu hls
+let g:CommandTFileScanner='git'
