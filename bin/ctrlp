@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e -u -o pipefail
+
+git subtree pull --prefix bundle/ctrlp https://github.com/ctrlpvim/ctrlp.vim master --squash
