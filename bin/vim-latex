@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -e -u -o pipefail
+
+git subtree pull --squash --prefix bundle/vim-latex https://github.com/vim-latex/vim-latex master
